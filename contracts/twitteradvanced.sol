@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
+import "hardhat/console1.sol";
 
 contract Twitter_ADVANCED {
 
@@ -105,7 +106,8 @@ contract Twitter_ADVANCED {
     }
 
     function follow_OR_unfollowUser(address _user) external {
-        // require(_user !== msg.sender,"you cant follow yourself");
+        require(users[_user].wallet == _user,"user not found");
+        require(_user != msg.sender,"you cant follow yourself");
         address[] storage following = users[msg.sender].following;
         bool alreadyfollowing; 
         uint following_index;
@@ -119,7 +121,7 @@ contract Twitter_ADVANCED {
         if (alreadyfollowing) {
             delete following[following_index];
         }else {
-            following[following_index] = _user;
+            following.push(_user) ;
         }
 
         address[] storage followers = users[_user].followers;
@@ -135,35 +137,10 @@ contract Twitter_ADVANCED {
         if (alreadyfollows) {
             delete followers[follower_index];
         }else {
-            followers[follower_index] = msg.sender;
+            followers.push(msg.sender) ;
         }
-        // User storage user = users[_user];
-        // user.followers.push(msg.sender);
-
-        // User storage caller = users[msg.sender];
-        // caller.following.push(_user);
-
-
     }
 
-    // function unfollowuser(address _user)  external {
-    //     require(_user !== msg.sender,"you cant unfollow yourself");
-    //     User storage caller = users[msg.sender];
-    //     for (uint i = 0; i < caller.following.length; i++) {
-    //         if (caller.following[i] == _user) {
-    //             delete caller.following[i];
-    //             break;
-    //         }
-    //     }
-
-    //     User storage user = users[_user];
-    //     for (uint i = 0; i < user.followers.length; i++) {
-    //         if (user.followers[i] == msg.sender) {
-    //             delete user.followers[i];
-    //             break;
-    //         }
-    //     }
-    // }
 
     function getFollowing() external view returns(address[] memory)  {
         return users[msg.sender].following;
@@ -173,24 +150,29 @@ contract Twitter_ADVANCED {
         return users[msg.sender].followers;
     }
 
-    function getTweetFeed(address _user) view external returns(Tweet[] memory) {
+    function getTweetFeed(address _user) view external  returns(Tweet[] memory){
         address[] memory following = users[_user].following;
+        console.log('following: ', following[following.length - 1]);
         uint feedlength;
+        
 
         for (uint i = 0; i < following.length; i++) {
             uint[] memory tweetids = users[following[i]].userTweets;
-            feedlength += tweetids.length;
+            feedlength = feedlength + tweetids.length;
+            console.log('feedlength: ', feedlength);
         }
-
+        console.log('feedlengthall: ', feedlength);
         Tweet[] memory latestfeed = new Tweet[](feedlength); 
 
         for (uint i = 0; i < following.length; i++) {
             uint[] memory tweetids = users[following[i]].userTweets;
 
             for (uint j = 0; j < tweetids.length; j++) {
-                latestfeed[feedlength] = tweets[tweetids[j]];
+                 latestfeed[feedlength-j-1] = tweets[tweetids[j]];
             }
+            feedlength = feedlength - tweetids.length;
         }
+        console.log('latestfeed: ', latestfeed[latestfeed.length-1].createdAt);
         return latestfeed;
     }
 
