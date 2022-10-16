@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
-import "hardhat/console1.sol";
 
 contract Twitter_ADVANCED {
 
@@ -152,16 +151,13 @@ contract Twitter_ADVANCED {
 
     function getTweetFeed(address _user) view external  returns(Tweet[] memory){
         address[] memory following = users[_user].following;
-        console.log('following: ', following[following.length - 1]);
         uint feedlength;
         
 
         for (uint i = 0; i < following.length; i++) {
             uint[] memory tweetids = users[following[i]].userTweets;
             feedlength = feedlength + tweetids.length;
-            console.log('feedlength: ', feedlength);
         }
-        console.log('feedlengthall: ', feedlength);
         Tweet[] memory latestfeed = new Tweet[](feedlength); 
 
         for (uint i = 0; i < following.length; i++) {
@@ -172,7 +168,6 @@ contract Twitter_ADVANCED {
             }
             feedlength = feedlength - tweetids.length;
         }
-        console.log('latestfeed: ', latestfeed[latestfeed.length-1].createdAt);
         return latestfeed;
     }
 
